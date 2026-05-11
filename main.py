@@ -19,21 +19,27 @@ logger = logging.getLogger("ocr-api")
 
 app = FastAPI(title="Profit Pal OCR API")
 
-# 2. Inițializare Motor (Versiunea Stabilă 2.7)
-# Se face o singură dată la pornire pentru viteză
+# Variabilă globală pentru motor și eroare
+ocr = None
+init_error = None
+
 try:
     logger.info("Se încarcă motorul PaddleOCR...")
-    # Am eliminat show_log și am actualizat parametrul de orientare conform log-urilor
-    ocr = PaddleOCR(use_textline_orientation=True, lang='en', use_gpu=False)
+    # Revenim la o formă mai simplă pentru compatibilitate maximă
+    ocr = PaddleOCR(use_angle_cls=True, lang='en', use_gpu=False)
     logger.info("Motorul a fost încărcat cu succes!")
 except Exception as e:
+    init_error = str(e)
     logger.error(f"Eroare la încărcarea motorului: {e}")
     ocr = None
 
 @app.post("/ocr")
 async def process_ocr(request: dict):
     if ocr is None:
-        raise HTTPException(status_code=500, detail="Motorul OCR nu este disponibil")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Motorul OCR nu este disponibil. Eroare inițializare: {init_error}"
+        )
     
     # Suportă ambele variante de chei
     image_url = request.get("image") or request.get("image_url")
