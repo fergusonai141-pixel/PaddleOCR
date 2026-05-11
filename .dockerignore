@@ -25,8 +25,7 @@ deploy/slim
 !README.md
 LICENSE
 MANIFEST.in
-setup.py
-pyproject.toml
+# setup.py and pyproject.toml must NOT be ignored
 mkdocs.yml
 mkdocs-ci.yml
 CNAME
