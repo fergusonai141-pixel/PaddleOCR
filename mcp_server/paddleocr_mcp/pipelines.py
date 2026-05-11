@@ -39,7 +39,13 @@ from PIL import Image as PILImage
 from typing_extensions import Literal, Self, assert_never
 
 try:
-    from paddleocr import PaddleOCR, PaddleOCRVL, PPStructureV3
+    from paddleocr import PaddleOCR
+    # Try to import experimental components, but don't fail if they are missing
+    try:
+        from paddleocr import PaddleOCRVL, PPStructureV3
+    except ImportError:
+        PaddleOCRVL = None
+        PPStructureV3 = None
 
     LOCAL_OCR_AVAILABLE = True
 except ImportError:
