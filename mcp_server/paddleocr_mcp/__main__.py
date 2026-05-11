@@ -14,23 +14,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
-import asyncio
 import os
 import sys
+
+# Disable problematic features BEFORE any other imports
+os.environ["FLAGS_use_onednn"] = "0"
+os.environ["FLAGS_enable_pir_in_executor"] = "0"
+
+import argparse
+import asyncio
+import base64
+import io
+import json
+from typing import Optional, Dict, Any, List, Union
+
+import paddle
+paddle.set_flags({
+    "FLAGS_use_onednn": 0,
+    "FLAGS_enable_pir_in_executor": 0
+})
 
 from fastmcp import FastMCP
 from starlette.responses import JSONResponse
 from starlette.requests import Request
 
 from .pipelines import create_pipeline_handler
-import paddle
-
-# Force disable oneDNN and PIR to avoid execution engine errors on some CPUs
-paddle.set_flags({
-    "FLAGS_use_onednn": 0,
-    "FLAGS_enable_pir_in_executor": 0
-})
 
 
 def _parse_args() -> argparse.Namespace:

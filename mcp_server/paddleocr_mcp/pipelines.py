@@ -558,9 +558,11 @@ class OCRHandler(SimpleInferencePipelineHandler):
             return await self.process(input_data, output_mode, ctx, file_type)
 
     def _create_local_engine(self) -> Any:
+        # Using standard initialization for stability
         return PaddleOCR(
-            paddlex_config=self._pipeline_config,
-            device=self._device,
+            use_gpu=False,
+            lang="en",
+            show_log=False
         )
 
     def _get_service_endpoint(self) -> str:
