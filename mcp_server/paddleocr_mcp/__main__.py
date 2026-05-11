@@ -189,7 +189,7 @@ async def async_main() -> None:
         @mcp.custom_route("/ocr", methods=["GET", "POST"])
         async def ocr_api(request: Request):
             """Simple REST API for OCR processing."""
-            print("--- OCR API called ---")
+            print(f"DEBUG: OCR API called with method {request.method}")
             if request.method == "GET":
                 return JSONResponse({"message": "OCR API is alive and waiting for POST requests with an image."})
             try:
@@ -199,24 +199,21 @@ async def async_main() -> None:
                     return JSONResponse({"error": "Missing 'image' or 'input_data' field"}, status_code=400)
                 
                 output_mode = body.get("output_mode", "simple")
-                
-                # Use a mock context for the REST API to avoid session errors
-                class MockContext:
-                    def info(self, msg): print(f"INFO: {msg}")
-                    def error(self, msg): print(f"ERROR: {msg}")
-                    def warning(self, msg): print(f"WARNING: {msg}")
-                
-                ctx = MockContext()
+                print(f"DEBUG: Processing image from {input_data[:50]}...")
                 
                 result = await pipeline_handler.process(
                     input_data=input_data,
-                    output_mode=output_mode,
-                    ctx=ctx
+                    output_mode=output_mode
                 )
                 
+                print("DEBUG: Processing successful")
                 return JSONResponse({"result": result})
             except Exception as e:
-                return JSONResponse({"error": str(e)}, status_code=500)
+                import traceback
+                error_msg = f"OCR Error: {str(e)}"
+                print(f"DEBUG: {error_msg}")
+                traceback.print_exc()
+                return JSONResponse({"error": error_msg}, status_code=500)
 
         pipeline_handler.register_tools(mcp)
 

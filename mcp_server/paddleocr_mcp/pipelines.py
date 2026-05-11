@@ -345,7 +345,7 @@ class SimpleInferencePipelineHandler(PipelineHandler):
         self,
         input_data: str,
         output_mode: OutputMode,
-        ctx: Context,
+        ctx: Optional[Context] = None,
         file_type: Optional[str] = None,
         infer_kwargs: Optional[Dict[str, Any]] = None,
         format_kwargs: Optional[Dict[str, Any]] = None,
@@ -366,9 +366,10 @@ class SimpleInferencePipelineHandler(PipelineHandler):
         infer_kwargs = infer_kwargs or {}
         format_kwargs = format_kwargs or {}
         try:
-            await ctx.info(
-                f"Starting {self._pipeline} processing (source: {self._ppocr_source})"
-            )
+            if ctx:
+                await ctx.info(
+                    f"Starting {self._pipeline} processing (source: {self._ppocr_source})"
+                )
 
             if self._mode == "local":
                 processed_input = self._process_input_for_local(input_data, file_type)
@@ -393,7 +394,8 @@ class SimpleInferencePipelineHandler(PipelineHandler):
             )
 
         except Exception as e:
-            await ctx.error(f"{self._pipeline} processing failed: {str(e)}")
+            if ctx:
+                await ctx.error(f"{self._pipeline} processing failed: {str(e)}")
             self._handle_error(e, output_mode)
 
     def _process_input_for_local(
