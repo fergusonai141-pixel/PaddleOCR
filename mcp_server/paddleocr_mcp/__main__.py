@@ -21,6 +21,7 @@ import sys
 
 from fastmcp import FastMCP
 from starlette.responses import JSONResponse
+from starlette.requests import Request
 
 from .pipelines import create_pipeline_handler
 
@@ -50,8 +51,8 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--host",
-        default="127.0.0.1",
-        help="Host address for HTTP mode (default: 127.0.0.1).",
+        default="0.0.0.0",
+        help="Host address for HTTP mode (default: 0.0.0.0).",
     )
     parser.add_argument(
         "--port",
@@ -180,12 +181,36 @@ async def async_main() -> None:
             mask_error_details=True,
         )
 
-        pipeline_handler.register_tools(mcp)
-
         @mcp.custom_route("/health", methods=["GET"])
         async def health_check(request):
             """Health check endpoint for Docker/Dokploy."""
             return JSONResponse({"status": "healthy", "pipeline": args.pipeline})
+
+        @mcp.custom_route("/ocr", methods=["POST"])
+        async def ocr_api(request: Request):
+            """Simple REST API for OCR processing."""
+            try:
+                body = await request.json()
+                input_data = body.get("image") or body.get("input_data")
+                if not input_data:
+                    return JSONResponse({"error": "Missing 'image' or 'input_data' field"}, status_code=400)
+                
+                output_mode = body.get("output_mode", "simple")
+                
+                from fastmcp import Context
+                ctx = Context()
+                
+                result = await pipeline_handler.process(
+                    input_data=input_data,
+                    output_mode=output_mode,
+                    ctx=ctx
+                )
+                
+                return JSONResponse({"result": result})
+            except Exception as e:
+                return JSONResponse({"error": str(e)}, status_code=500)
+
+        pipeline_handler.register_tools(mcp)
 
         log_level = "INFO" if args.verbose else "WARNING"
 
