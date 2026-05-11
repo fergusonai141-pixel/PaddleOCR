@@ -29,22 +29,20 @@ except Exception as e:
     logger.error(f"Eroare la încărcarea motorului: {e}")
     ocr = None
 
-class OCRRequest(BaseModel):
-    image_url: str
-
-@app.get("/health")
-async def health():
-    return {"status": "up", "engine": "PaddleOCR 2.7"}
-
 @app.post("/ocr")
-async def process_ocr(request: OCRRequest):
+async def process_ocr(request: dict):
     if ocr is None:
         raise HTTPException(status_code=500, detail="Motorul OCR nu este disponibil")
+    
+    # Suportă ambele variante de chei
+    image_url = request.get("image") or request.get("image_url")
+    if not image_url:
+        raise HTTPException(status_code=400, detail="Lipsește câmpul 'image' sau 'image_url'")
     
     try:
         # Descărcare imagine
         async with httpx.AsyncClient() as client:
-            response = await client.get(request.image_url, timeout=30.0)
+            response = await client.get(image_url, timeout=30.0)
             if response.status_code != 200:
                 raise HTTPException(status_code=400, detail="Nu s-a putut descărca imaginea")
             
