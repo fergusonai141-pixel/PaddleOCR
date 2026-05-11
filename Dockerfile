@@ -1,50 +1,25 @@
-# Use a lightweight Python base image
-FROM python:3.10-slim
+FROM python:3.10
 
-# Set environment variables to prevent Python from writing .pyc files and buffering stdout/stderr
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Install system dependencies for OpenCV, PaddlePaddle, and other libraries
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1 \
+# Instalare dependințe sistem pentru OpenCV și Paddle
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
     libglib2.0-0 \
     libsm6 \
     libxrender1 \
     libxext6 \
-    libgomp1 \
-    build-essential \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
 WORKDIR /app
 
-# Upgrade pip
-RUN pip install --no-cache-dir --upgrade pip
+# Copiere dependințe
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Pretend version for setuptools-scm (since .git is missing)
-ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PADDLEOCR=3.0.0
+# Copiere cod
+COPY main.py .
 
-# Copy the entire project
-COPY . .
-
-# Install the root PaddleOCR package and its dependencies
-RUN pip install --no-cache-dir -e .
-
-# Install the MCP server with local CPU support
-# This will install paddlepaddle (CPU) and other required dependencies
-RUN pip install --no-cache-dir -e "./mcp_server[local-cpu]"
-
-# Expose the port used by the MCP server in HTTP mode
+# Portul API
 EXPOSE 8000
 
-# Default environment variables for the MCP server
-ENV PADDLEOCR_MCP_PIPELINE=OCR
-ENV PADDLEOCR_MCP_PPOCR_SOURCE=local
-ENV PADDLEOCR_MCP_DEVICE=cpu
-ENV PADDLEOCR_MCP_TIMEOUT=60
-
-# Command to run the MCP server in HTTP mode
-# Using '0.0.0.0' to allow external access within the Docker network
-CMD ["python", "-m", "mcp_server.paddleocr_mcp", "--http", "--host", "0.0.0.0", "--port", "8000"]
+# Pornire server
+CMD ["python", "main.py"]

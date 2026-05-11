@@ -1,18 +1,9 @@
-shapely
-scikit-image
-pyclipper
-lmdb; python_version >= "3.9"
-lmdb<1.5; python_version < "3.9"
-tqdm
-numpy
-rapidfuzz
-opencv-python
-opencv-contrib-python
-cython
-Pillow
-pyyaml
-requests
-albumentations
-# to be compatible with albumentations
-albucore
-packaging
+paddlepaddle==2.6.1
+paddleocr>=2.7.0
+fastapi
+uvicorn[standard]
+python-multipart
+numpy<2.0.0
+opencv-python-headless
+pillow
+httpx
