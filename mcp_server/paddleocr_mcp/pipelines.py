@@ -372,11 +372,18 @@ class SimpleInferencePipelineHandler(PipelineHandler):
                 )
 
             if self._mode == "local":
+                print("DEBUG: Processing local image...")
                 processed_input = self._process_input_for_local(input_data, file_type)
                 infer_kwargs = self._transform_local_kwargs(infer_kwargs)
-                raw_result = await self._predict_with_local_engine(
-                    processed_input, ctx, **infer_kwargs
-                )
+                print("DEBUG: Calling local engine...")
+                # Call the engine directly instead of through the wrapper for the REST API if it helps stability
+                if hasattr(self, "_engine") and not hasattr(self, "_engine_wrapper"):
+                     raw_result = self._engine.predict(processed_input, **infer_kwargs)
+                else:
+                     raw_result = await self._predict_with_local_engine(
+                        processed_input, ctx, **infer_kwargs
+                     )
+                print("DEBUG: Prediction received")
                 result = await self._parse_local_result(raw_result, ctx)
             else:
                 processed_input, inferred_file_type = self._process_input_for_service(
