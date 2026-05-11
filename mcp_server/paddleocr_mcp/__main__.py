@@ -200,8 +200,13 @@ async def async_main() -> None:
                 
                 output_mode = body.get("output_mode", "simple")
                 
-                from fastmcp import Context
-                ctx = Context(fastmcp=mcp)
+                # Use a mock context for the REST API to avoid session errors
+                class MockContext:
+                    def info(self, msg): print(f"INFO: {msg}")
+                    def error(self, msg): print(f"ERROR: {msg}")
+                    def warning(self, msg): print(f"WARNING: {msg}")
+                
+                ctx = MockContext()
                 
                 result = await pipeline_handler.process(
                     input_data=input_data,
