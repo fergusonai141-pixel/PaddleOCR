@@ -23,7 +23,8 @@ app = FastAPI(title="Profit Pal OCR API")
 # Se face o singură dată la pornire pentru viteză
 try:
     logger.info("Se încarcă motorul PaddleOCR...")
-    ocr = PaddleOCR(use_angle_cls=True, lang='en', use_gpu=False, show_log=False)
+    # Am eliminat show_log și am actualizat parametrul de orientare conform log-urilor
+    ocr = PaddleOCR(use_textline_orientation=True, lang='en', use_gpu=False)
     logger.info("Motorul a fost încărcat cu succes!")
 except Exception as e:
     logger.error(f"Eroare la încărcarea motorului: {e}")
