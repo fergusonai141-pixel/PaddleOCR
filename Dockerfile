@@ -23,6 +23,9 @@ WORKDIR /app
 # Upgrade pip
 RUN pip install --no-cache-dir --upgrade pip
 
+# Pretend version for setuptools-scm (since .git is missing)
+ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PADDLEOCR=3.0.0
+
 # Copy the entire project
 COPY . .
 
