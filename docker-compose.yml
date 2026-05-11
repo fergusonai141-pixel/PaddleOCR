@@ -13,6 +13,8 @@ services:
       - PADDLEOCR_MCP_TIMEOUT=60
       - PADDLEOCR_MCP_VERBOSE=false
       - FLAGS_use_onednn=0
+      - OMP_NUM_THREADS=1
+      - MKL_NUM_THREADS=1
       - PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True
     command: ["python", "-m", "mcp_server.paddleocr_mcp", "--http"]
     restart: unless-stopped
