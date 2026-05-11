@@ -24,9 +24,9 @@ ocr = None
 init_error = None
 
 try:
-    logger.info("Se încarcă motorul PaddleOCR...")
-    # Revenim la o formă mai simplă pentru compatibilitate maximă
-    ocr = PaddleOCR(use_angle_cls=True, lang='en', use_gpu=False)
+    logger.info("Se încarcă motorul PaddleOCR (mod simplificat)...")
+    # Lăsăm setările implicite pentru a evita erorile de tip "Unknown argument"
+    ocr = PaddleOCR()
     logger.info("Motorul a fost încărcat cu succes!")
 except Exception as e:
     init_error = str(e)
