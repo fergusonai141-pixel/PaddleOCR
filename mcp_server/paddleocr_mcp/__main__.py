@@ -29,10 +29,8 @@ import json
 from typing import Optional, Dict, Any, List, Union
 
 import paddle
-paddle.set_flags({
-    "FLAGS_use_onednn": 0,
-    "FLAGS_enable_pir_in_executor": 0
-})
+# We rely on os.environ set above for FLAGS_use_onednn and FLAGS_enable_pir_in_executor
+# as paddle.set_flags is more restrictive in version 2.6.1.
 
 from fastmcp import FastMCP
 from starlette.responses import JSONResponse
