@@ -24,6 +24,13 @@ from starlette.responses import JSONResponse
 from starlette.requests import Request
 
 from .pipelines import create_pipeline_handler
+import paddle
+
+# Force disable oneDNN and PIR to avoid execution engine errors on some CPUs
+paddle.set_flags({
+    "FLAGS_use_onednn": 0,
+    "FLAGS_enable_pir_in_executor": 0
+})
 
 
 def _parse_args() -> argparse.Namespace:
