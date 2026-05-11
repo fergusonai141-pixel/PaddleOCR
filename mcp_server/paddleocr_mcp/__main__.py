@@ -201,7 +201,7 @@ async def async_main() -> None:
                 output_mode = body.get("output_mode", "simple")
                 
                 from fastmcp import Context
-                ctx = Context()
+                ctx = Context(fastmcp=mcp)
                 
                 result = await pipeline_handler.process(
                     input_data=input_data,
