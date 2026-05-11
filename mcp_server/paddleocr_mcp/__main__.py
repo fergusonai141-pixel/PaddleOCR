@@ -186,9 +186,12 @@ async def async_main() -> None:
             """Health check endpoint for Docker/Dokploy."""
             return JSONResponse({"status": "healthy", "pipeline": args.pipeline})
 
-        @mcp.custom_route("/ocr", methods=["POST"])
+        @mcp.custom_route("/ocr", methods=["GET", "POST"])
         async def ocr_api(request: Request):
             """Simple REST API for OCR processing."""
+            print("--- OCR API called ---")
+            if request.method == "GET":
+                return JSONResponse({"message": "OCR API is alive and waiting for POST requests with an image."})
             try:
                 body = await request.json()
                 input_data = body.get("image") or body.get("input_data")
