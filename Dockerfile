@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.10-bookworm
 
 # Instalare dependințe sistem pentru OpenCV și Paddle
 RUN apt-get update && apt-get install -y \
@@ -14,7 +14,7 @@ WORKDIR /app
 
 # Copiere dependințe
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 
 # Copiere cod
 COPY main.py .

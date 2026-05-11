@@ -11,6 +11,7 @@ import numpy as np
 
 # 1. Configurare Stabilitate Paddle (trebuie făcute înainte de inițializare)
 os.environ["FLAGS_use_onednn"] = "0"
+os.environ["FLAGS_use_pir_api"] = "0"
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
