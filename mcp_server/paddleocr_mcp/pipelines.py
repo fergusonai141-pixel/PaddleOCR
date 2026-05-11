@@ -51,6 +51,12 @@ try:
 except ImportError:
     LOCAL_OCR_AVAILABLE = False
 
+try:
+    import easyocr
+    EASY_OCR_AVAILABLE = True
+except ImportError:
+    EASY_OCR_AVAILABLE = False
+
 
 OutputMode = Literal["simple", "detailed"]
 
@@ -959,11 +965,53 @@ class PaddleOCRVLHandler(_LayoutParsingHandler):
         return kwargs
 
 
+class EasyOCRHandler(PipelineHandler):
+    def register_tools(self, mcp: FastMCP) -> None:
+        @mcp.tool("easyocr")
+        async def _easyocr(
+            input_data: str,
+            output_mode: OutputMode = "simple",
+            *,
+            ctx: Context,
+        ) -> Union[str, List[Union[TextContent, ImageContent]]]:
+            """Extracts text from images using EasyOCR. Accepts file path, URL, or Base64."""
+            return await self.process(input_data, output_mode, ctx)
+
+    def _create_local_engine(self) -> Any:
+        return easyocr.Reader(['en'], gpu=False)
+
+    async def _predict_with_local_engine(self, image: PILImage.Image, **kwargs) -> Any:
+        # Convert PIL image to numpy array
+        img_np = np.array(image)
+        # EasyOCR returns list of (bbox, text, confidence)
+        results = self._engine.readtext(img_np)
+        
+        # Transform to a format similar to PaddleOCR results for compatibility
+        # PaddleOCR format is typically [[[[x,y],...], ("text", score)], ...]
+        transformed = []
+        for (bbox, text, prob) in results:
+            # bbox is list of 4 [x,y] coordinates
+            # EasyOCR bbox format is already [[x,y], [x,y], [x,y], [x,y]]
+            transformed.append([bbox, (text, prob)])
+        
+        return [transformed]
+
+    def _get_service_endpoint(self) -> str:
+        return "ocr"
+
+    def _transform_local_kwargs(self, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        return {}
+
+    def _transform_service_kwargs(self, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        return {}
+
+
 _PIPELINE_HANDLERS: Dict[str, Type[PipelineHandler]] = {
     "OCR": OCRHandler,
     "PP-StructureV3": PPStructureV3Handler,
     "PaddleOCR-VL": PaddleOCRVLHandler,
     "PaddleOCR-VL-1.5": PaddleOCRVLHandler,
+    "EasyOCR": EasyOCRHandler,
 }
 
 

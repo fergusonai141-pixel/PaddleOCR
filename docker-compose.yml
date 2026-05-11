@@ -7,7 +7,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - PADDLEOCR_MCP_PIPELINE=OCR
+      - PADDLEOCR_MCP_PIPELINE=EasyOCR
       - PADDLEOCR_MCP_PPOCR_SOURCE=local
       - PADDLEOCR_MCP_DEVICE=cpu
       - PADDLEOCR_MCP_TIMEOUT=60
