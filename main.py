@@ -1,19 +1,18 @@
 import os
-import logging
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from paddleocr import PaddleOCR
-import paddle
-import httpx
-import io
-from PIL import Image
-import numpy as np
 
-# 1. Configurare Stabilitate Paddle (trebuie făcute înainte de inițializare)
+# 1. Configurare Stabilitate Paddle (TREBUIE făcute la începutul absolut, înainte de import paddle)
 os.environ["FLAGS_use_onednn"] = "0"
 os.environ["FLAGS_use_pir_api"] = "0"
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
+
+import logging
+from fastapi import FastAPI, HTTPException
+from paddleocr import PaddleOCR
+import httpx
+import io
+from PIL import Image
+import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ocr-api")
@@ -59,7 +58,7 @@ async def process_ocr(request: dict):
         img_np = np.array(img)
         
         # Infernță
-        logger.info(f"Se procesează imaginea de la {request.image_url[:50]}...")
+        logger.info(f"Se procesează imaginea...")
         result = ocr.ocr(img_np, cls=True)
         
         # Formatare rezultat (simplificat pentru Profit Pal)
